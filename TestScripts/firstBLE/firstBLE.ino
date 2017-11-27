@@ -13,6 +13,7 @@ int debounceState;
 int switchState = 0;
 int ledState = 0;
 
+// Set up the basic components for the BLE device and data (service and it's characteristics)
 BLEPeripheral blePeripheral = BLEPeripheral(BLE_REQ, BLE_RDY, BLE_RST);
 BLEService lightswitch = BLEService("FF10");
 
@@ -22,47 +23,37 @@ BLEDescriptor switchDescriptor = BLEDescriptor("2901", "Switch");
 BLECharCharacteristic stateCharacteristic = BLECharCharacteristic("FF12", BLENotify);
 BLEDescriptor stateDescriptor = BLEDescriptor("2091", "State");
 
-/*
- * issue no code seems to run after the blePeripheral.begin(); line
- * possible problems:
- * wiring issues
- * BLE board is not work
- * issue needs research
-*/
-
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  
+
   Serial.println("hi there, just starting up");//@test
-  
+
   pinMode(LED_PIN, OUTPUT);
   pinMode(BUTTON_PIN, INPUT);
 
+  // set up the device
   blePeripheral.setLocalName("Light Switch");
   blePeripheral.setDeviceName("Smart Light Switch");
   blePeripheral.setAdvertisedServiceUuid(lightswitch.uuid());
-  
+
   Serial.println("just created the BLE device");//@test
-  
+
+  // add all attributes to the data being advertised
   blePeripheral.addAttribute(lightswitch);
   blePeripheral.addAttribute(switchCharacteristic);
   blePeripheral.addAttribute(switchDescriptor);
   blePeripheral.addAttribute(stateCharacteristic);
   blePeripheral.addAttribute(stateDescriptor);
 
-  Serial.println("about to start broadcasting");//@test
-
+  // set event handler and begin broadcasting
+  switchCharacteristic.setEventHandler(BLEWritten, switchCharacteristicWritten);
   blePeripheral.begin();
-
-  Serial.println(F("Now broadcasting"));//@test
 
   Serial.println(F("Smart Light Switch"));
 }
 
 void loop() {
-  Serial.println(F("Smart Light Switch"));
   blePeripheral.poll();
 
   currentState = digitalRead(BUTTON_PIN);
@@ -97,8 +88,7 @@ void loop() {
   }
 }
 
-/*
-void switchCharacteristic(BLECentral& central, BLECharacteristic& characteristic) {
+void switchCharacteristicWritten(BLECentral& central, BLECharacteristic& characteristic) {
   Serial.print(F("Characteristic event:"));
   if (switchCharacteristic.value()) {
     Serial.println("light on");
@@ -114,4 +104,3 @@ void switchCharacteristic(BLECentral& central, BLECharacteristic& characteristic
 
   }
 }
-*/
