@@ -4,6 +4,15 @@
 
 unsigned int XMin, XCenter, XMax;
 
+int command;
+int score = 0;
+boolean wasCorrect = false;
+
+
+String commands[3] = {"left", "center", "right"};
+
+unsigned long startTime, commandDelay = 1500;
+
 const unsigned int rs = 12, en = 11, d4 = 2, d5 = 3, d6 = 4, d7 = 5;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
@@ -12,24 +21,44 @@ void setup() {
   lcd.begin(16, 2);
   calibrate();
 
-  clearLCDRow(0, 0, 0); lcd.print("Interpreting");
+  clearLCDRow(0, 0, 0); lcd.print("Interpreting:");
+
+  startTime = millis();
+  command = random(0, 3);
+  lcd.clear(); lcd.print("Tilt "); lcd.print(commands[command]);
+
 }
 
 void loop() {
-  //  Serial.print("maxP at: "); Serial.println(analogRead(A0)); Serial.println("");
-
   int reading = analogRead(JYSTCK_X);
+  int response;
+  boolean correct = false;
 
-  clearLCDRow(1, 0, 1);
-  if (reading <= ((XCenter - XMin) / 2)) {
-    lcd.print("Left");
-  } else if (reading >= (XCenter + ((XMax - XCenter) / 2))) {
-    lcd.print("Right");
-  } else {
-    lcd.print("Center");
+  if ( abs(millis() - startTime) >= commandDelay ) {
+    command = random(0, 3);
+    startTime = millis();
+    wasCorrect = false;
+    correct = false;
+    clearLCDRow(0, 0, 0); lcd.print("Tilt "); lcd.print(commands[command]);
+    setScore(0, 0);
   }
 
-  delay(250);
+  // input interpetation and correctness Checking Code
+  if (reading <= ((XCenter - XMin) / 2)) {
+    response = 0;
+  } else if (reading >= (XCenter + ((XMax - XCenter) / 2))) {
+    response = 2;
+  } else {
+    response = 1;
+  }
+
+void setScore(int prevCol, int prevRow) {
+  if (score < 10) {
+    lcd.setCursor(15, 0); lcd.print(score);
+  } else {
+    lcd.setCursor(14, 0); lcd.print(score);
+  }
+  lcd.setCursor(prevCol, prevRow);
 }
 
 void clearLCDRow(int row, int prevCol, int prevRow) {
@@ -50,9 +79,6 @@ void calibrate() {
 
   for (int i = 0; i < 100; i++) {
     centerP += analogRead(JYSTCK_X);
-    //    Serial.print("counter at: "); Serial.println(i); // @test
-    //    Serial.print("centerP at: "); Serial.println(centerP); // @test
-    //    Serial.println(""); // @test
   }
 
   XCenter = (centerP / 100);
@@ -66,9 +92,6 @@ void calibrate() {
 
   for (int i = 0; i < 100; i++) {
     lowerP += analogRead(JYSTCK_X);
-    //    Serial.print("counter at: "); Serial.println(i); // @test
-    //    Serial.print("lowerP at: "); Serial.println(lowerP); // @test
-    //    Serial.println(""); // @test
   }
 
   XMin = (lowerP / 100);
@@ -83,10 +106,6 @@ void calibrate() {
 
   for (int i = 0; i < 100; i++) {
     maxP += analogRead(JYSTCK_X);
-    //    Serial.print("Sensor Reading: "); Serial.println(analogRead(JYSTCK_X)); // @test
-    //    Serial.print("counter at: "); Serial.println(i); // @test
-    //    Serial.print("maxP at: "); Serial.println(maxP); // @test
-    //    Serial.println(""); // @test
   }
 
   XMax = (maxP / 100);
