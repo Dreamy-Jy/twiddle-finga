@@ -51,6 +51,21 @@ void loop() {
   } else {
     response = 1;
   }
+  if ( response == command ) {
+    correct = true;
+    clearLCDRow(1, 0, 1); lcd.print("OK: "); lcd.print(commands[response]);
+  } else {
+    clearLCDRow(1, 0, 1); lcd.print("NO: "); lcd.print(commands[response]);
+  }
+
+  if (correct == true && wasCorrect == false) {
+    score++;
+    setScore(0, 0);
+    wasCorrect = true;
+  }
+
+  delay(500);
+}
 
 void setScore(int prevCol, int prevRow) {
   if (score < 10) {
