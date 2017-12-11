@@ -73,13 +73,11 @@ void startRound() {
   command = random(0, (CMD_NUM - 1) );
   lcd.clear(); lcd.print("Round "); lcd.print(gameRound);
   lcd.setCursor(0, 1); lcd.print("Get ready!!");
-  if (gameRound > 1) {
-    tone(SPEKR, 100, 1000);
-    delay(1500);
-    tone(SPEKR, 50, 1000);
-    delay(1500);
-    tone(SPEKR, 25, 1000);
-  }
+  tone(SPEKR, 100, 1000);
+  delay(1500);
+  tone(SPEKR, 50, 1000);
+  delay(1500);
+  tone(SPEKR, 25, 1000);
   delay(2000);
   lcd.clear(); lcd.print("Tilt "); lcd.print(commands[command]); updateScoreDisplay(0, 0);
   roundStartTime = millis();
@@ -105,27 +103,27 @@ void clearLCDRow(int row, int prevCol, int prevRow) {
 int interpetJKSTICKInputs(int input_X, int input_Y ) {
   Serial.print("\n\nX input at: "); Serial.print(input_X); Serial.print("\n");
   Serial.print("Y input at: "); Serial.print(input_Y); Serial.print("\n");
-  
+
   if (abs(input_X - XCenter) > abs(input_Y - YCenter) ) {
     if (input_X <= ((XCenter - XMin) / 2)) {
-      Serial.print("I think this is a "); Serial.print(commands[0]);Serial.print(" tilt\n");
+      Serial.print("I think this is a "); Serial.print(commands[0]); Serial.print(" tilt\n");
       return 0;
     } else if (input_X >= (XCenter + ((XMax - XCenter) / 2))) {
-      Serial.print("I think this is a "); Serial.print(commands[1]);Serial.print(" tilt\n");
+      Serial.print("I think this is a "); Serial.print(commands[1]); Serial.print(" tilt\n");
       return 1;
     } else {
-      Serial.print("I think this is a "); Serial.print(commands[4]);Serial.print(" tilt\n");
+      Serial.print("I think this is a "); Serial.print(commands[4]); Serial.print(" tilt\n");
       return 4;
     }
   } else if (abs(input_Y - YCenter) > abs(input_X - XCenter) ) {
     if (input_Y <= ((YCenter - YMin) / 2)) {
-      Serial.print("I think this is a "); Serial.print(commands[2]);Serial.print(" tilt\n");
+      Serial.print("I think this is a "); Serial.print(commands[2]); Serial.print(" tilt\n");
       return 2;
     } else if (input_Y >= (YCenter + ((YMax - YCenter) / 2))) {
-      Serial.print("I think this is a "); Serial.print(commands[3]);Serial.print(" tilt\n");
+      Serial.print("I think this is a "); Serial.print(commands[3]); Serial.print(" tilt\n");
       return 3;
     } else {
-      Serial.print("I think this is a "); Serial.print(commands[4]);Serial.print(" tilt\n");
+      Serial.print("I think this is a "); Serial.print(commands[4]); Serial.print(" tilt\n");
       return 4;
     }
   } else { // this else just catchs unexpected values
